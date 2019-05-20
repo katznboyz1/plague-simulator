@@ -1,0 +1,19 @@
+{
+    "meta":{
+
+    },
+    "data":{
+        "main-map-image-path":"./map.png",
+        "amount-of-rats-per-ship":10,
+        "amount-of-ships":3,
+        "default-font-path":"./utils/segoe-ui.ttf",
+        "human-sprites":{
+            "blank":"./utils/human-sprite-blank.png",
+            "dead":"./utils/human-sprite-dead.png",
+            "healthy":"./utils/human-sprite-healthy.png",
+            "immune":"./utils/human-sprite-immune.png",
+            "infected":"./utils/human-sprite-infected.png"
+        },
+        "rat-sprite-path":"./utils/rat-sprite.png"
+    }
+}
