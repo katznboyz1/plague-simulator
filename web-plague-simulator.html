@@ -87,7 +87,7 @@
             }
 
             humanData = generateRandomPeople([0, canvas.width * 15, 1], [canvas.width, canvas.height]);
-            ratData = generateRandomRats([0, canvas.width * 15, 1], [canvas.width, canvas.height]);
+            ratData = generateRandomRats([0, canvas.width * 25, 1], [canvas.width, canvas.height]);
 
             var images = {
                 'human':{
@@ -147,13 +147,13 @@
                                 distance[0] = getDistance(ratData[rats]['x'], position[0]);
                                 distance[1] = getDistance(ratData[rats]['y'], position[1]);
                                 if (distance[0] <= (20 * 1) && distance[1] <= (20 * 1)) {
-                                    humanStatus = ['healthy', 'infected', 'infected'][getRandomInt(0, 2)];
+                                    humanStatus = ['healthy', 'infected', 'infected'][getRandomInt(0, 1)];
                                     humanData[eachHuman]['status'] = humanStatus;
                                 }
                             }
                         }
                     } else if (status == 'infected') {
-                        humanStatus = ['dead', 'immune', 'infected', 'infected'][getRandomInt(0, 1)];
+                        humanStatus = ['dead', 'immune', 'immune', 'infected',][getRandomInt(0, 1)];
                         humanData[eachHuman]['status'] = humanStatus;
                     }
 
@@ -168,7 +168,7 @@
                     if (status == 1){
                         ctx.drawImage(images['rat'], position[0], position[1]);
 
-                        if (getRandomInt(0, 500) == 1) {
+                        if (getRandomInt(0, 200) == 1) {
                             ratData[eachRat]['alive'] = 0;
                         }
                     }
