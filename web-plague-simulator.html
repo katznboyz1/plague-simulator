@@ -1,0 +1,189 @@
+<!DOCTYPE HTML>
+<!--This script was created by katznboyz/katznboyz1/Harrison. If you plan to use this for your own uses, please credit me, or dont, this is a comment, not a cop.-->
+<html lang = 'en'>
+    <head>
+        <title>Plague Simulator</title>
+        <meta charset = 'utf-8'/>
+    </head>
+    <style>
+        @font-face{font-family:'__segoe-ui__';src:url('./utils/segoe-ui.ttf');}
+        #simulatorScreen{background-color:white;width:1280px;height:720px;border:2px solid black;margin:10px;}
+        body{background-color:lightgray;width:100vw;height:100vh;overflow:scroll;font-family:__segoe-ui__,'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;}
+        .text1{margin-left:10px;font-family:__segoe-ui__;font-size:15px;color:black;}
+        #key{background-color:white;border:2px solid black;width:auto;height:auto;display:inline-block;margin:10px;}
+        .inlineImage{display:inline-block;width:40px;height:40px;margin-left:10px;margin-right:10px;}
+    </style>
+    <body>
+        <p class = 'text1' style = 'font-size:30px;'>Web Version Of The Plague Simulator, by katznboyz/Harrison</p>
+        <canvas id = 'simulatorScreen'>
+            <p class = 'text1'>
+                Certain parts of this page seem not to work in the browser that you are using. Try using a different browser.<br>
+                Specific error: Webpage could not load #simulatorScreen object in the DOM.<br>
+            </p>
+        </canvas><br>
+        <div id = 'key'>
+            <p class = 'text1' style = 'margin-left:10px;margin-right:10px;'>Hover over the images to see what they represent</p>
+            <img id = 'sprite-humanBlank' class = 'inlineImage' src = './utils/human-sprite-blank.png' title = 'This represents a human that has encountered some error.'/>
+            <img id = 'sprite-humanHealthy' class = 'inlineImage' src = './utils/human-sprite-healthy.png' title = 'This represents a human that is alive and healthy.'/>
+            <img id = 'sprite-humanDead' class = 'inlineImage' src = './utils/human-sprite-dead.png' title = 'This represents a human that is dead.'/>
+            <img id = 'sprite-humanImmune' class = 'inlineImage' src = './utils/human-sprite-immune.png' title = 'This represents a human that that is immune to the plague.'/>
+            <img id = 'sprite-humanInfected' class = 'inlineImage' src = './utils/human-sprite-infected.png' title = 'This represents a human that is infected with the plague.'/>
+            <img id = 'sprite-rat' class = 'inlineImage' src = './utils/rat-sprite.png' title = 'This represents a rat that is alive.'/>
+
+        </div>
+        <script>
+            function getRandomInt(min, max) {
+                return Math.floor(Math.random() * (max - min + 1) + min);
+            }
+
+            var canvas = document.getElementById('simulatorScreen');
+            var ctx = canvas.getContext('2d');
+            canvas.width = 1280;
+            canvas.height = 720;
+            var runs = 0;
+
+            function generateRandomPeople(chance, worldSize) {
+                people = [];
+                for (each_x = 0; each_x <= worldSize[0]; each_x++) {
+                    for (each_y = 0; each_y <= worldSize[1]; each_y++) {
+                        if (getRandomInt(chance[0], chance[1]) == chance[2]) {
+                            people.push({
+                                'x':each_x,
+                                'y':each_y,
+                                'status':'healthy',
+                                'pathfinder':{
+                                    'destination':[worldSize[0] / 2, worldSize[1] / 2]
+                                }
+                            });
+                        }
+                    }
+                }
+                return people;
+            }
+
+            function generateRandomRats(chance, worldSize) {
+                rats = [];
+                for (each_x = 0; each_x <= worldSize[0]; each_x++) {
+                    for (each_y = 0; each_y <= worldSize[1]; each_y++) {
+                        if (getRandomInt(chance[0], chance[1]) == chance[2]) {
+                            rats.push({
+                                'x':each_x,
+                                'y':each_y,
+                                'alive':1,
+                                'pathfinder':{
+                                    'destination':[worldSize[0] / 2, worldSize[1] / 2]
+                                }
+                            });
+                        }
+                    }
+                }
+                return rats;
+            }
+
+            function getDistance(pointOne, pointTwo) {
+                pointOne = Math.abs(pointOne);
+                pointTwo = Math.abs(pointTwo);
+                return Math.abs(pointOne - pointTwo);
+            }
+
+            humanData = generateRandomPeople([0, canvas.width * 15, 1], [canvas.width, canvas.height]);
+            ratData = generateRandomRats([0, canvas.width * 15, 1], [canvas.width, canvas.height]);
+
+            var images = {
+                'human':{
+                    'blank':document.getElementById('sprite-humanBlank'),
+                    'dead':document.getElementById('sprite-humanDead'),
+                    'immune':document.getElementById('sprite-humanImmune'),
+                    'healthy':document.getElementById('sprite-humanHealthy'),
+                    'infected':document.getElementById('sprite-humanInfected'),
+                },
+                'rat':document.getElementById('sprite-rat')
+            }
+
+            var stepAmount = 2; //how much the players will move per run
+
+            function mainloop() {
+                ctx.fillStyle = '#ff9000';
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                var currentHumansDead = 0;
+
+                for (eachHuman = 0;eachHuman < humanData.length;eachHuman++) {
+                    position = [humanData[eachHuman]['x'], humanData[eachHuman]['y']];
+                    pathfinderPosition = humanData[eachHuman]['pathfinder']['destination'];
+                    status = humanData[eachHuman]['status'];
+
+                    if (status == 'dead') {
+                        currentHumansDead += 1;
+                    } else if (status == 'healthy' || status == 'immune') {
+                        if (position[0] < pathfinderPosition[0]) {
+                            humanData[eachHuman]['x'] += stepAmount;
+                        } else if (position[0] > pathfinderPosition[0]) {
+                            humanData[eachHuman]['x'] -= stepAmount;
+                        }
+                        if (position[1] < pathfinderPosition[1]) {
+                            humanData[eachHuman]['y'] += stepAmount;
+                        } else if (position[1] > pathfinderPosition[1]) {
+                            humanData[eachHuman]['y'] -= stepAmount;
+                        }
+
+                        distances = [getDistance(position[0], pathfinderPosition[0]), getDistance(position[1], pathfinderPosition[1])]
+
+                        if (distances <= (20 * 3)) {
+                            humanData[eachHuman]['pathfinder']['destination'][0] = position[0];
+                        }
+                        if (distances <= (20 * 3)) {
+                            humanData[eachHuman]['pathfinder']['destination'][1] = position[1];
+                        }
+
+                        if (distances[0] <= (20 * 3) && distances[1] <= (20 * 3)) {
+                            humanData[eachHuman]['pathfinder']['destination'] = [getRandomInt(0, canvas.width), getRandomInt(0, canvas.height)];
+                        }
+
+                        for (rats = 0;rats < ratData.length;rats++) {
+                            if (ratData[rats]['alive'] == 1){
+                                distance = [0, 0];
+                                distance[0] = getDistance(ratData[rats]['x'], position[0]);
+                                distance[1] = getDistance(ratData[rats]['y'], position[1]);
+                                if (distance[0] <= (20 * 1) && distance[1] <= (20 * 1)) {
+                                    humanStatus = ['healthy', 'infected', 'infected'][getRandomInt(0, 2)];
+                                    humanData[eachHuman]['status'] = humanStatus;
+                                }
+                            }
+                        }
+                    } else if (status == 'infected') {
+                        humanStatus = ['dead', 'immune', 'infected', 'infected'][getRandomInt(0, 1)];
+                        humanData[eachHuman]['status'] = humanStatus;
+                    }
+
+                    ctx.drawImage(images['human'][status], position[0], position[1])
+                }
+
+                for (eachRat = 0;eachRat < ratData.length;eachRat++) {
+                    position = [ratData[eachRat]['x'], ratData[eachRat]['y']];
+                    pathfinderPosition = ratData[eachRat]['pathfinder']['destination'];
+                    status = ratData[eachRat]['alive'];
+
+                    if (status == 1){
+                        ctx.drawImage(images['rat'], position[0], position[1]);
+
+                        if (getRandomInt(0, 500) == 1) {
+                            ratData[eachRat]['alive'] = 0;
+                        }
+                    }
+                }
+
+                ctx.font = '40px __segoe-ui__';
+                ctx.fillStyle = 'black';
+                ctx.fillText(String('FPS: ' + 'unavailable'), 0, 40)
+                ctx.fillText(String(currentHumansDead + '/' + humanData.length + ' dead'), 0, 80)
+
+                runs++;
+
+                window.requestAnimationFrame(mainloop);
+            }
+            window.requestAnimationFrame(mainloop);
+        </script>
+    </body>
+</html>
